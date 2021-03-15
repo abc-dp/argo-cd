@@ -20,7 +20,7 @@ require (
 	github.com/evanphx/json-patch v4.9.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-logr/logr v0.3.0
+	github.com/go-logr/logr v0.4.0
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/runtime v0.19.4
 	github.com/go-openapi/spec v0.19.3
@@ -78,7 +78,7 @@ require (
 	k8s.io/client-go v11.0.1-0.20190816222228-6d55c1b1f1ca+incompatible
 	k8s.io/code-generator v0.20.1
 	k8s.io/component-base v0.20.1
-	k8s.io/klog/v2 v2.4.0
+	k8s.io/klog/v2 v2.5.0
 	k8s.io/kube-openapi v0.0.0-20201113171705-d219536bb9fd
 	k8s.io/kubectl v0.20.1
 	k8s.io/utils v0.0.0-20201110183641-67b214c5f920
@@ -119,3 +119,5 @@ replace (
 	k8s.io/mount-utils => k8s.io/mount-utils v0.20.1
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.20.1
 )
+
+replace github.com/argoproj/pkg => github.com/yujunz/argoproj-pkg v0.3.1-0.20210315062911-374cc920a995
