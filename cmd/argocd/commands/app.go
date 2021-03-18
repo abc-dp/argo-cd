@@ -936,8 +936,9 @@ func groupObjsForDiff(resources *application.ManagedResourcesResponse, objs map[
 // NewApplicationDeleteCommand returns a new instance of an `argocd app delete` command
 func NewApplicationDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
-		cascade  bool
-		noPrompt bool
+		cascade           bool
+		noPrompt          bool
+		propagationPolicy string
 	)
 	var command = &cobra.Command{
 		Use:   "delete APPNAME",
@@ -962,6 +963,9 @@ func NewApplicationDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.
 				}
 				if c.Flag("cascade").Changed {
 					appDeleteReq.Cascade = &cascade
+				}
+				if c.Flag("propagation-policy").Changed {
+					appDeleteReq.PropagationPolicy = &propagationPolicy
 				}
 				if cascade && isTerminal && !noPrompt {
 					var confirmAnswer string = "n"
@@ -997,6 +1001,7 @@ func NewApplicationDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.
 		},
 	}
 	command.Flags().BoolVar(&cascade, "cascade", true, "Perform a cascaded deletion of all application resources")
+	command.Flags().StringVarP(&propagationPolicy, "propagation-policy", "p", "foreground", "Specify propagation policy for deletion of application's resources. One of: foreground|background")
 	command.Flags().BoolVarP(&noPrompt, "yes", "y", false, "Turn off prompting to confirm cascaded deletion of application resources")
 	return command
 }
@@ -1083,7 +1088,7 @@ func NewApplicationListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Co
 	command.Flags().StringVarP(&output, "output", "o", "wide", "Output format. One of: wide|name|json|yaml")
 	command.Flags().StringVarP(&selector, "selector", "l", "", "List apps by label")
 	command.Flags().StringArrayVarP(&projects, "project", "p", []string{}, "Filter by project name")
-	command.Flags().StringVarP(&selector, "repo", "r", "", "List apps by source repo URL")
+	command.Flags().StringVarP(&repo, "repo", "r", "", "List apps by source repo URL")
 	return command
 }
 
