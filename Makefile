@@ -1,4 +1,4 @@
-PACKAGE=github.com/argoproj/argo-cd/common
+PACKAGE=github.com/argoproj/argo-cd/v2/common
 CURRENT_DIR=$(shell pwd)
 DIST_DIR=${CURRENT_DIR}/dist
 CLI_NAME=argocd
@@ -548,3 +548,6 @@ dep-ui: test-tools-image
 
 dep-ui-local:
 	cd ui && yarn install
+
+start-test-k8s:
+	go run ./hack/k8s
