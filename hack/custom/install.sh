@@ -2,7 +2,7 @@
 set -eux -o pipefail
 
 apt-get update && \
-  apt-get install -y curl awscli gnupg procps && \
+  apt-get install -y curl awscli gnupg jq procps&& \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -17,3 +17,5 @@ chmod +x ${BIN}/sops
 export HELMFILE_VERSION=0.138.4-3-g90de61a
 export HELMFILE_RELEASE=https://github.com/yujunz/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_Linux_x86_64.tar.gz
 curl ${CURL_ARGS} ${HELMFILE_RELEASE} | tar zxf - -C ${BIN} helmfile
+
+pip3 install yq==2.12.0
