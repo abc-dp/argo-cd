@@ -282,6 +282,12 @@ func (s *Server) GetManifests(ctx context.Context, q *application.ApplicationMan
 	if err != nil {
 		return nil, err
 	}
+
+	helmRepositoryCredentials, err := s.db.GetAllHelmRepositoryCredentials(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	manifestInfo, err := repoClient.GenerateManifest(ctx, &apiclient.ManifestRequest{
 		Repo:              repo,
 		Revision:          revision,
@@ -294,6 +300,7 @@ func (s *Server) GetManifests(ctx context.Context, q *application.ApplicationMan
 		KustomizeOptions:  kustomizeOptions,
 		KubeVersion:       serverVersion,
 		ApiVersions:       argo.APIGroupsToVersions(apiGroups),
+		HelmRepoCreds:     helmRepositoryCredentials,
 	})
 	if err != nil {
 		return nil, err
@@ -1358,7 +1365,11 @@ func (s *Server) Sync(ctx context.Context, syncReq *application.ApplicationSyncR
 		if len(syncReq.Resources) > 0 {
 			partial = "partial "
 		}
-		s.logAppEvent(a, ctx, argo.EventReasonOperationStarted, fmt.Sprintf("initiated %ssync to %s", partial, displayRevision))
+		reason := fmt.Sprintf("initiated %ssync to %s", partial, displayRevision)
+		if syncReq.Manifests != nil {
+			reason = fmt.Sprintf("initiated %ssync locally", partial)
+		}
+		s.logAppEvent(a, ctx, argo.EventReasonOperationStarted, reason)
 	}
 	return a, err
 }
@@ -1421,6 +1432,9 @@ func (s *Server) Rollback(ctx context.Context, rollbackReq *application.Applicat
 // resolveRevision resolves the revision specified either in the sync request, or the
 // application source, into a concrete revision that will be used for a sync operation.
 func (s *Server) resolveRevision(ctx context.Context, app *appv1.Application, syncReq *application.ApplicationSyncRequest) (string, string, error) {
+	if syncReq.Manifests != nil {
+		return "", "", nil
+	}
 	ambiguousRevision := syncReq.Revision
 	if ambiguousRevision == "" {
 		ambiguousRevision = app.Spec.Source.TargetRevision
