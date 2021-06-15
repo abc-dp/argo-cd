@@ -4887,6 +4887,14 @@
             "type": "string"
           }
         },
+        "forceCommonAnnotations": {
+          "type": "boolean",
+          "title": "ForceCommonAnnotations specifies whether to force applying common annotations to resources for Kustomize apps"
+        },
+        "forceCommonLabels": {
+          "type": "boolean",
+          "title": "ForceCommonLabels specifies whether to force applying common labels to resources for Kustomize apps"
+        },
         "images": {
           "type": "array",
           "title": "Images is a list of Kustomize image override specifications",
@@ -5179,6 +5187,13 @@
       "type": "object",
       "title": "ClusterInfo contains information about the cluster",
       "properties": {
+        "apiVersions": {
+          "type": "array",
+          "title": "APIVersions contains list of API versions supported by the cluster",
+          "items": {
+            "type": "string"
+          }
+        },
         "applicationsCount": {
           "type": "string",
           "format": "int64",
@@ -5653,6 +5668,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "jqPathExpressions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -5988,6 +6009,12 @@
       "properties": {
         "group": {
           "type": "string"
+        },
+        "jqPathExpressions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "jsonPointers": {
           "type": "array",
