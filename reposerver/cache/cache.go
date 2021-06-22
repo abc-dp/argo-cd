@@ -215,6 +215,19 @@ func (c *Cache) SetRevisionMetadata(repoURL, revision string, item *appv1.Revisi
 	return c.cache.SetItem(revisionMetadataKey(repoURL, revision), item, c.repoCacheExpiration, false)
 }
 
+func revParseKey(repoURL, revision string) string {
+	return fmt.Sprintf("revparse|%s|%s", repoURL, revision)
+}
+
+func (c *Cache) GetRevParse(repoURL, revision string) (string, error) {
+	var item string
+	return item, c.cache.GetItem(revParseKey(repoURL, revision), &item)
+}
+
+func (c *Cache) SetRevParse(repoURL, revision string, item string) error {
+	return c.cache.SetItem(revParseKey(repoURL, revision), item, c.repoCacheExpiration, false)
+}
+
 func (cmr *CachedManifestResponse) shallowCopy() *CachedManifestResponse {
 	if cmr == nil {
 		return nil

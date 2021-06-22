@@ -128,7 +128,7 @@ func (s *Service) ListRefs(ctx context.Context, q *apiclient.ListRefsRequest) (*
 
 // ListApps lists the contents of a GitHub repo
 func (s *Service) ListApps(ctx context.Context, q *apiclient.ListAppsRequest) (*apiclient.AppList, error) {
-	gitClient, commitSHA, err := s.newClientResolveRevision(q.Repo, q.Revision)
+	gitClient, commitSHA, err := s.newClientFetchAndRevParse(q.Repo, q.Revision)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func (s *Service) runRepoOperation(
 			return err
 		}
 	} else if git.IsMutableRef(revision) {
-		gitClient, revision, err = s.newClientResolveRevision(repo, revision, git.WithCache(s.cache, !settings.noRevisionCache && !settings.noCache))
+		gitClient, revision, err = s.newClientFetchAndRevParse(repo, revision, git.WithCache(s.cache, !settings.noRevisionCache && !settings.noCache))
 		if err != nil {
 			return err
 		}
@@ -1433,9 +1433,52 @@ func (s *Service) newClientResolveRevision(repo *v1alpha1.Repository, revision s
 	if err != nil {
 		return nil, "", err
 	}
+
 	commitSHA, err := gitClient.LsRemote(revision)
 	if err != nil {
 		return nil, "", err
+	}
+	return gitClient, commitSHA, nil
+}
+
+func (s *Service) newClientFetchAndRevParse(repo *v1alpha1.Repository, revision string, opts ...git.ClientOpts) (git.Client, string, error) {
+	var commitSHA string
+	gitClient, err := s.newClient(repo, opts...)
+	if err != nil {
+		return nil, "", err
+	}
+
+	err = gitClient.Init()
+	if err != nil {
+		return gitClient, "", status.Errorf(codes.Internal, "Failed to initialize git repo: %v", err)
+	}
+
+	if !git.IsMutableRef(revision) {
+		commitSHA, err = s.cache.GetRevParse(repo.Repo, revision)
+		if err == nil {
+			return gitClient, commitSHA, nil
+		}
+	}
+
+	s.metricsServer.IncPendingRepoRequest(repo.Repo)
+	defer s.metricsServer.DecPendingRepoRequest(repo.Repo)
+
+	closer, err := s.repoLock.Lock(gitClient.Root(), revision, true, func() error {
+		return gitClient.Fetch(revision)
+	})
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	defer io.Close(closer)
+
+	commitSHA, err = gitClient.RevParse("FETCH_HEAD")
+	if err != nil {
+		return nil, "", err
+	}
+	if !git.IsMutableRef(revision) {
+		s.cache.SetRevParse(repo.Repo, revision, commitSHA)
 	}
 	return gitClient, commitSHA, nil
 }
@@ -1475,20 +1518,6 @@ func checkoutRevision(gitClient git.Client, revision string) error {
 	}
 
 	err = gitClient.Fetch(revision)
-
-	if err != nil {
-		log.Warnf("Failed to fetch revision %s: %v", revision, err)
-		log.Infof("Fallback to fetch default")
-		err = gitClient.Fetch("")
-		if err != nil {
-			return status.Errorf(codes.Internal, "Failed to fetch default: %v", err)
-		}
-		err = gitClient.Checkout(revision)
-		if err != nil {
-			return status.Errorf(codes.Internal, "Failed to checkout revision %s: %v", revision, err)
-		}
-		return err
-	}
 
 	err = gitClient.Checkout("FETCH_HEAD")
 	if err != nil {

@@ -61,6 +61,7 @@ type Client interface {
 	LsFiles(path string) ([]string, error)
 	LsLargeFiles() ([]string, error)
 	CommitSHA() (string, error)
+	RevParse(string) (string, error)
 	RevisionMetadata(revision string) (*RevisionMetadata, error)
 	VerifyCommitSignature(string) (string, error)
 }
@@ -526,6 +527,15 @@ func (m *nativeGitClient) lsRemote(revision string) (string, error) {
 	// If we get here, revision string had non hexadecimal characters (indicating its a branch, tag,
 	// or symbolic ref) and we were unable to resolve it to a commit SHA.
 	return "", fmt.Errorf("Unable to resolve '%s' to a commit SHA", revision)
+}
+
+// RevParse returns result of `rev-parse` command
+func (m *nativeGitClient) RevParse(rev string) (string, error) {
+	out, err := m.runCmd("rev-parse", rev)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(out), nil
 }
 
 // CommitSHA returns current commit sha from `git rev-parse HEAD`
