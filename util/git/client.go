@@ -522,6 +522,15 @@ func (m *nativeGitClient) lsRemote(revision string) (string, error) {
 	return "", fmt.Errorf("Unable to resolve '%s' to a commit SHA", revision)
 }
 
+// RevParse returns result of `rev-parse` command
+func (m *nativeGitClient) RevParse(rev string) (string, error) {
+	out, err := m.runCmd("rev-parse", rev)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(out), nil
+}
+
 // CommitSHA returns current commit sha from `git rev-parse HEAD`
 func (m *nativeGitClient) CommitSHA() (string, error) {
 	out, err := m.runCmd("rev-parse", "HEAD")
