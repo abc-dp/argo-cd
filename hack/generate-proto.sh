@@ -72,7 +72,7 @@ go build -o dist/protoc-gen-grpc-gateway ./vendor/github.com/grpc-ecosystem/grpc
 go build -o dist/protoc-gen-swagger ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 
 # Generate server/<service>/(<service>.pb.go|<service>.pb.gw.go)
-PROTO_FILES=$(find $PROJECT_ROOT \( -name "*.proto" -and -path '*/server/*' -or -path '*/reposerver/*' -and -name "*.proto" \) | sort)
+PROTO_FILES=$(find $PROJECT_ROOT \( -name "*.proto" -and -path '*/server/*' -or -path '*/reposerver/*' -and -name "*.proto" -or -path '*/cmpserver/*' -and -name "*.proto" \) | sort)
 for i in ${PROTO_FILES}; do
     GOOGLE_PROTO_API_PATH=${MOD_ROOT}/github.com/grpc-ecosystem/grpc-gateway@${grpc_gateway_version}/third_party/googleapis
     GOGO_PROTOBUF_PATH=${PROJECT_ROOT}/vendor/github.com/gogo/protobuf
@@ -125,8 +125,9 @@ clean_swagger() {
 }
 
 echo "If additional types are added, the number of expected collisions may need to be increased"
-EXPECTED_COLLISION_COUNT=55
+EXPECTED_COLLISION_COUNT=64
 collect_swagger server ${EXPECTED_COLLISION_COUNT}
 clean_swagger server
 clean_swagger reposerver
 clean_swagger controller
+clean_swagger cmpserver

@@ -266,6 +266,7 @@ image:
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-server
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-application-controller
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-repo-server
+	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-cmp-server
 	ln -sfn ${DIST_DIR}/argocd ${DIST_DIR}/argocd-dex
 	cp Dockerfile.dev dist
 	docker build -t $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) -f dist/Dockerfile.dev dist
@@ -412,12 +413,14 @@ start-e2e-local:
 	if test -d /tmp/argo-e2e/app/config/gpg; then rm -rf /tmp/argo-e2e/app/config/gpg/*; fi
 	mkdir -p /tmp/argo-e2e/app/config/gpg/keys && chmod 0700 /tmp/argo-e2e/app/config/gpg/keys
 	mkdir -p /tmp/argo-e2e/app/config/gpg/source && chmod 0700 /tmp/argo-e2e/app/config/gpg/source
+	mkdir -p /tmp/argo-e2e/app/config/plugin && chmod 0700 /tmp/argo-e2e/app/config/plugin
 	# set paths for locally managed ssh known hosts and tls certs data
 	ARGOCD_SSH_DATA_PATH=/tmp/argo-e2e/app/config/ssh \
 	ARGOCD_TLS_DATA_PATH=/tmp/argo-e2e/app/config/tls \
 	ARGOCD_GPG_DATA_PATH=/tmp/argo-e2e/app/config/gpg/source \
 	ARGOCD_GNUPGHOME=/tmp/argo-e2e/app/config/gpg/keys \
 	ARGOCD_GPG_ENABLED=$(ARGOCD_GPG_ENABLED) \
+	ARGOCD_PLUGINCONFIGFILEPATH=/tmp/argo-e2e/app/config/plugin \
 	ARGOCD_E2E_DISABLE_AUTH=false \
 	ARGOCD_ZJWT_FEATURE_FLAG=always \
 	ARGOCD_IN_CI=$(ARGOCD_IN_CI) \
@@ -453,6 +456,12 @@ start-local: mod-vendor-local dep-ui-local
 	ARGOCD_GPG_ENABLED=$(ARGOCD_GPG_ENABLED) \
 	ARGOCD_E2E_TEST=false \
 		goreman -f $(ARGOCD_PROCFILE) start ${ARGOCD_START}
+
+# Run goreman start with exclude option , provide exclude env variable with list of services
+.PHONY: run
+run:
+	bash ./hack/goreman-start.sh
+
 
 # Runs pre-commit validation with the virtualized toolchain
 .PHONY: pre-commit

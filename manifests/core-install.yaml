@@ -254,6 +254,10 @@ spec:
                                   type: string
                               type: object
                             type: array
+                          passCredentials:
+                            description: PassCredentials pass credentials to all domains
+                              (Helm's --pass-credentials)
+                            type: boolean
                           releaseName:
                             description: ReleaseName is the Helm release name to use.
                               If omitted it will use the application name
@@ -606,6 +610,10 @@ spec:
                               type: string
                           type: object
                         type: array
+                      passCredentials:
+                        description: PassCredentials pass credentials to all domains
+                          (Helm's --pass-credentials)
+                        type: boolean
                       releaseName:
                         description: ReleaseName is the Helm release name to use.
                           If omitted it will use the application name
@@ -972,6 +980,10 @@ spec:
                                     type: string
                                 type: object
                               type: array
+                            passCredentials:
+                              description: PassCredentials pass credentials to all
+                                domains (Helm's --pass-credentials)
+                              type: boolean
                             releaseName:
                               description: ReleaseName is the Helm release name to
                                 use. If omitted it will use the application name
@@ -1353,6 +1365,10 @@ spec:
                                           type: string
                                       type: object
                                     type: array
+                                  passCredentials:
+                                    description: PassCredentials pass credentials
+                                      to all domains (Helm's --pass-credentials)
+                                    type: boolean
                                   releaseName:
                                     description: ReleaseName is the Helm release name
                                       to use. If omitted it will use the application
@@ -1713,6 +1729,10 @@ spec:
                                       type: string
                                   type: object
                                 type: array
+                              passCredentials:
+                                description: PassCredentials pass credentials to all
+                                  domains (Helm's --pass-credentials)
+                                type: boolean
                               releaseName:
                                 description: ReleaseName is the Helm release name
                                   to use. If omitted it will use the application name
@@ -2060,6 +2080,10 @@ spec:
                                       type: string
                                   type: object
                                 type: array
+                              passCredentials:
+                                description: PassCredentials pass credentials to all
+                                  domains (Helm's --pass-credentials)
+                                type: boolean
                               releaseName:
                                 description: ReleaseName is the Helm release name
                                   to use. If omitted it will use the application name
@@ -2487,6 +2511,10 @@ spec:
                       description: Schedule is the time the window will begin, specified
                         in cron format
                       type: string
+                    timeZone:
+                      description: TimeZone of the sync that will be applied to the
+                        schedule
+                      type: string
                   type: object
                 type: array
             type: object
@@ -2905,7 +2933,7 @@ spec:
       automountServiceAccountToken: false
       containers:
       - command:
-        - uid_entrypoint.sh
+        - entrypoint.sh
         - argocd-repo-server
         - --redis
         - argocd-redis:6379
@@ -2982,6 +3010,12 @@ spec:
               key: reposerver.default.cache.expiration
               name: argocd-cmd-params-cm
               optional: true
+        - name: HELM_CACHE_HOME
+          value: /helm-working-dir
+        - name: HELM_CONFIG_HOME
+          value: /helm-working-dir
+        - name: HELM_DATA_HOME
+          value: /helm-working-dir
         image: quay.io/argoproj/argocd:latest
         imagePullPolicy: Always
         livenessProbe:
@@ -3021,6 +3055,21 @@ spec:
           name: argocd-repo-server-tls
         - mountPath: /tmp
           name: tmp
+        - mountPath: /helm-working-dir
+          name: helm-working-dir
+        - mountPath: /home/argocd/cmp-server/plugins
+          name: plugins
+      initContainers:
+      - command:
+        - cp
+        - -n
+        - /usr/local/bin/argocd
+        - /var/run/argocd/argocd-cmp-server
+        image: quay.io/argoproj/argocd:latest
+        name: copyutil
+        volumeMounts:
+        - mountPath: /var/run/argocd
+          name: var-files
       volumes:
       - configMap:
           name: argocd-ssh-known-hosts-cm
@@ -3035,6 +3084,8 @@ spec:
         name: gpg-keyring
       - emptyDir: {}
         name: tmp
+      - emptyDir: {}
+        name: helm-working-dir
       - name: argocd-repo-server-tls
         secret:
           items:
@@ -3046,6 +3097,10 @@ spec:
             path: ca.crt
           optional: true
           secretName: argocd-repo-server-tls
+      - emptyDir: {}
+        name: var-files
+      - emptyDir: {}
+        name: plugins
 ---
 apiVersion: apps/v1
 kind: StatefulSet

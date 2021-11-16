@@ -1,11 +1,10 @@
 import {DataLoader, DropDown, DropDownMenu, MenuItem, NotificationType, Tooltip} from 'argo-ui';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
-import {Checkbox as ReactCheckbox} from 'react-form';
 import Moment from 'react-moment';
 
-import {EmptyState, ErrorNotification} from '../../../shared/components';
 import {AppContext} from '../../../shared/context';
+import {CheckboxField, EmptyState, ErrorNotification} from '../../../shared/components';
 import {Application, ApplicationTree, HostResourceInfo, InfoItem, Node, Pod, ResourceName, ResourceNode, ResourceStatus} from '../../../shared/models';
 import {PodViewPreferences, services, ViewPreferences} from '../../../shared/services';
 
@@ -69,13 +68,13 @@ export class PodView extends React.Component<PodViewProps> {
                                     <div className='pod-view__settings__section'>
                                         <button
                                             className={`argo-button argo-button--base${podPrefs.hideUnschedulable ? '-o' : ''}`}
-                                            // style={{width: '205px'}}
+                                            style={{border: 'none', width: '170px'}}
                                             onClick={() =>
                                                 services.viewPreferences.updatePreferences({
                                                     appDetails: {...prefs.appDetails, podView: {...podPrefs, hideUnschedulable: !podPrefs.hideUnschedulable}}
                                                 })
                                             }>
-                                            <i className={`fa fa-${podPrefs.hideUnschedulable ? 'eye-slash' : 'eye'}`} style={{marginRight: '5px'}} />
+                                            <i className={`fa fa-${podPrefs.hideUnschedulable ? 'eye-slash' : 'eye'}`} style={{width: '15px', marginRight: '5px'}} />
                                             UNSCHEDULABLE
                                         </button>
                                     </div>
@@ -170,6 +169,9 @@ export class PodView extends React.Component<PodViewProps> {
                                                                                     preventOverflow: {
                                                                                         enabled: true
                                                                                     },
+                                                                                    hide: {
+                                                                                        enabled: false
+                                                                                    },
                                                                                     flip: {
                                                                                         enabled: false
                                                                                     }
@@ -197,7 +199,7 @@ export class PodView extends React.Component<PodViewProps> {
                                                                                 </React.Fragment>
                                                                             ),
                                                                             action: () => {
-                                                                                this.appContext.apis.navigation.goto('.', {node: pod.fullName, tab: 'logs'});
+                                                                                this.appContext.apis.navigation.goto('.', {node: pod.fullName, tab: 'logs'}, {replace: true});
                                                                             }
                                                                         },
                                                                         {
@@ -213,7 +215,7 @@ export class PodView extends React.Component<PodViewProps> {
                                                                                         <div>
                                                                                             <p>Are your sure you want to delete Pod '{pod.name}'?</p>
                                                                                             <div className='argo-form-row' style={{paddingLeft: '30px'}}>
-                                                                                                <ReactCheckbox id='force-delete-checkbox' field='force' />
+                                                                                                <CheckboxField id='force-delete-checkbox' field='force' />
                                                                                                 <label htmlFor='force-delete-checkbox'>Force delete</label>
                                                                                             </div>
                                                                                         </div>

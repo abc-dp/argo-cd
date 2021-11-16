@@ -47,7 +47,6 @@ RUN groupadd -g 999 argocd && \
     mkdir -p /home/argocd && \
     chown argocd:0 /home/argocd && \
     chmod g=u /home/argocd && \
-    chmod g=u /etc/passwd && \
     apt-get update && \
     apt-get dist-upgrade -y && \
     apt-get install -y git git-lfs python3-pip tini gpg tzdata && \
@@ -67,9 +66,9 @@ COPY --from=builder /usr/local/bin/kustomize /usr/local/bin/kustomize
 COPY hack/custom /opt/custom
 RUN /opt/custom/install.sh
 
-# script to add current (possibly arbitrary) user to /etc/passwd at runtime
-# (if it's not already there, to be openshift friendly)
-COPY uid_entrypoint.sh /usr/local/bin/uid_entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# keep uid_entrypoint.sh for backward compatibility
+RUN ln -s /usr/local/bin/entrypoint.sh /usr/local/bin/uid_entrypoint.sh
 
 # support for mounting configuration from a configmap
 RUN mkdir -p /app/config/ssh && \
@@ -140,6 +139,7 @@ COPY --from=argocd-build /go/src/github.com/argoproj/argo-cd/dist/argocd* /usr/l
 USER root
 RUN ln -s /usr/local/bin/argocd /usr/local/bin/argocd-server
 RUN ln -s /usr/local/bin/argocd /usr/local/bin/argocd-repo-server
+RUN ln -s /usr/local/bin/argocd /usr/local/bin/argocd-cmp-server
 RUN ln -s /usr/local/bin/argocd /usr/local/bin/argocd-application-controller
 RUN ln -s /usr/local/bin/argocd /usr/local/bin/argocd-dex
 
