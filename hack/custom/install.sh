@@ -2,7 +2,7 @@
 set -eux -o pipefail
 
 apt-get update && \
-  apt-get install -y curl awscli gnupg jq procps&& \
+  apt-get install -y curl gnupg jq python3-pip && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
