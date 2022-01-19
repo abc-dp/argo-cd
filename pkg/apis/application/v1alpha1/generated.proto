@@ -171,6 +171,9 @@ message ApplicationSource {
 
   // Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
   optional string chart = 12;
+
+  // RepoPaths are paths in the Git repository just enough to generate application manifests
+  repeated string repoPaths = 13;
 }
 
 // ApplicationSourceDirectory holds options for applications of type plain YAML or Jsonnet
@@ -213,6 +216,9 @@ message ApplicationSourceHelm {
 
   // IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values
   optional bool ignoreMissingValueFiles = 8;
+
+  // SkipCrds skips custom resource definition installation step (Helm's --skip-crds)
+  optional bool skipCrds = 9;
 }
 
 // ApplicationSourceJsonnet holds options specific to applications of type Jsonnet

@@ -4913,6 +4913,13 @@
         "plugin": {
           "$ref": "#/definitions/v1alpha1ApplicationSourcePlugin"
         },
+        "repoPaths": {
+          "type": "array",
+          "title": "RepoPaths are paths in the Git repository just enough to generate application manifests",
+          "items": {
+            "type": "string"
+          }
+        },
         "repoURL": {
           "type": "string",
           "title": "RepoURL is the URL to the repository (Git or Helm) that contains the application manifests"
@@ -4973,6 +4980,10 @@
         "releaseName": {
           "type": "string",
           "title": "ReleaseName is the Helm release name to use. If omitted it will use the application name"
+        },
+        "skipCrds": {
+          "type": "boolean",
+          "title": "SkipCrds skips custom resource definition installation step (Helm's --skip-crds)"
         },
         "valueFiles": {
           "type": "array",

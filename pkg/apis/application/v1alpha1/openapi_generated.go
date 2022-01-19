@@ -655,6 +655,21 @@ func schema_pkg_apis_application_v1alpha1_ApplicationSource(ref common.Reference
 							Format:      "",
 						},
 					},
+					"repoPaths": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RepoPaths are paths in the Git repository just enough to generate application manifests",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
 				},
 				Required: []string{"repoURL"},
 			},
@@ -788,6 +803,13 @@ func schema_pkg_apis_application_v1alpha1_ApplicationSourceHelm(ref common.Refer
 					"ignoreMissingValueFiles": {
 						SchemaProps: spec.SchemaProps{
 							Description: "IgnoreMissingValueFiles prevents helm template from failing when valueFiles do not exist locally by not appending them to helm template --values",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"skipCrds": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SkipCrds skips custom resource definition installation step (Helm's --skip-crds)",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},

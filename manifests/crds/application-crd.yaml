@@ -266,6 +266,10 @@ spec:
                             description: ReleaseName is the Helm release name to use.
                               If omitted it will use the application name
                             type: string
+                          skipCrds:
+                            description: SkipCrds skips custom resource definition
+                              installation step (Helm's --skip-crds)
+                            type: boolean
                           valueFiles:
                             description: ValuesFiles is a list of Helm value files
                               to use when generating a template
@@ -381,6 +385,12 @@ spec:
                           name:
                             type: string
                         type: object
+                      repoPaths:
+                        description: RepoPaths are paths in the Git repository just
+                          enough to generate application manifests
+                        items:
+                          type: string
+                        type: array
                       repoURL:
                         description: RepoURL is the URL to the repository (Git or
                           Helm) that contains the application manifests
@@ -635,6 +645,10 @@ spec:
                         description: ReleaseName is the Helm release name to use.
                           If omitted it will use the application name
                         type: string
+                      skipCrds:
+                        description: SkipCrds skips custom resource definition installation
+                          step (Helm's --skip-crds)
+                        type: boolean
                       valueFiles:
                         description: ValuesFiles is a list of Helm value files to
                           use when generating a template
@@ -748,6 +762,12 @@ spec:
                       name:
                         type: string
                     type: object
+                  repoPaths:
+                    description: RepoPaths are paths in the Git repository just enough
+                      to generate application manifests
+                    items:
+                      type: string
+                    type: array
                   repoURL:
                     description: RepoURL is the URL to the repository (Git or Helm)
                       that contains the application manifests
@@ -1010,6 +1030,10 @@ spec:
                               description: ReleaseName is the Helm release name to
                                 use. If omitted it will use the application name
                               type: string
+                            skipCrds:
+                              description: SkipCrds skips custom resource definition
+                                installation step (Helm's --skip-crds)
+                              type: boolean
                             valueFiles:
                               description: ValuesFiles is a list of Helm value files
                                 to use when generating a template
@@ -1126,6 +1150,12 @@ spec:
                             name:
                               type: string
                           type: object
+                        repoPaths:
+                          description: RepoPaths are paths in the Git repository just
+                            enough to generate application manifests
+                          items:
+                            type: string
+                          type: array
                         repoURL:
                           description: RepoURL is the URL to the repository (Git or
                             Helm) that contains the application manifests
@@ -1402,6 +1432,10 @@ spec:
                                       to use. If omitted it will use the application
                                       name
                                     type: string
+                                  skipCrds:
+                                    description: SkipCrds skips custom resource definition
+                                      installation step (Helm's --skip-crds)
+                                    type: boolean
                                   valueFiles:
                                     description: ValuesFiles is a list of Helm value
                                       files to use when generating a template
@@ -1521,6 +1555,12 @@ spec:
                                   name:
                                     type: string
                                 type: object
+                              repoPaths:
+                                description: RepoPaths are paths in the Git repository
+                                  just enough to generate application manifests
+                                items:
+                                  type: string
+                                type: array
                               repoURL:
                                 description: RepoURL is the URL to the repository
                                   (Git or Helm) that contains the application manifests
@@ -1770,6 +1810,10 @@ spec:
                                 description: ReleaseName is the Helm release name
                                   to use. If omitted it will use the application name
                                 type: string
+                              skipCrds:
+                                description: SkipCrds skips custom resource definition
+                                  installation step (Helm's --skip-crds)
+                                type: boolean
                               valueFiles:
                                 description: ValuesFiles is a list of Helm value files
                                   to use when generating a template
@@ -1887,6 +1931,12 @@ spec:
                               name:
                                 type: string
                             type: object
+                          repoPaths:
+                            description: RepoPaths are paths in the Git repository
+                              just enough to generate application manifests
+                            items:
+                              type: string
+                            type: array
                           repoURL:
                             description: RepoURL is the URL to the repository (Git
                               or Helm) that contains the application manifests
@@ -2126,6 +2176,10 @@ spec:
                                 description: ReleaseName is the Helm release name
                                   to use. If omitted it will use the application name
                                 type: string
+                              skipCrds:
+                                description: SkipCrds skips custom resource definition
+                                  installation step (Helm's --skip-crds)
+                                type: boolean
                               valueFiles:
                                 description: ValuesFiles is a list of Helm value files
                                   to use when generating a template
@@ -2243,6 +2297,12 @@ spec:
                               name:
                                 type: string
                             type: object
+                          repoPaths:
+                            description: RepoPaths are paths in the Git repository
+                              just enough to generate application manifests
+                            items:
+                              type: string
+                            type: array
                           repoURL:
                             description: RepoURL is the URL to the repository (Git
                               or Helm) that contains the application manifests
