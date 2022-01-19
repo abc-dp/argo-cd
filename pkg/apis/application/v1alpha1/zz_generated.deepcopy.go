@@ -315,6 +315,11 @@ func (in *ApplicationSource) DeepCopyInto(out *ApplicationSource) {
 		*out = new(ApplicationSourcePlugin)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.RepoPaths != nil {
+		in, out := &in.RepoPaths, &out.RepoPaths
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	return
 }
 

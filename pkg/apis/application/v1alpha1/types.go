@@ -172,6 +172,8 @@ type ApplicationSource struct {
 	Plugin *ApplicationSourcePlugin `json:"plugin,omitempty" protobuf:"bytes,11,opt,name=plugin"`
 	// Chart is a Helm chart name, and must be specified for applications sourced from a Helm repo.
 	Chart string `json:"chart,omitempty" protobuf:"bytes,12,opt,name=chart"`
+	// RepoPaths are paths in the Git repository just enough to generate application manifests
+	RepoPaths []string `json:"repoPaths,omitempty" protobuf:"bytes,13,rep,name=repoPaths"`
 }
 
 // AllowsConcurrentProcessing returns true if given application source can be processed concurrently

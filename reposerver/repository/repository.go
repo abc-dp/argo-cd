@@ -259,6 +259,17 @@ func (s *Service) runRepoOperation(
 		})
 	} else {
 		closer, err := s.repoLock.Lock(gitClient.Root(), revision, settings.allowConcurrent, func() error {
+			if len(source.RepoPaths) > 0 {
+				err := gitClient.Init()
+				if err != nil {
+					return status.Errorf(codes.Internal, "Failed to initialize git repo: %v", err)
+				}
+				err = gitClient.ArchiveRemoteAndExtract(revision, source.RepoPaths)
+				if err != nil {
+					return status.Errorf(codes.Internal, "Failed to archive remote and extract %s: %v", revision, err)
+				}
+				return err
+			}
 			return checkoutRevision(gitClient, revision, s.initConstants.SubmoduleEnabled)
 		})
 
@@ -1589,6 +1600,7 @@ func populateKustomizeAppDetails(res *apiclient.RepoAppDetailsResponse, q *apicl
 }
 
 func (s *Service) GetRevisionMetadata(ctx context.Context, q *apiclient.RepoServerRevisionMetadataRequest) (*v1alpha1.RevisionMetadata, error) {
+	return nil, fmt.Errorf("revision metadata disabled")
 	if !(git.IsCommitSHA(q.Revision) || git.IsTruncatedCommitSHA(q.Revision)) {
 		return nil, fmt.Errorf("revision %s must be resolved", q.Revision)
 	}
