@@ -66,6 +66,7 @@ type Client interface {
 	CommitSHA() (string, error)
 	RevisionMetadata(revision string) (*RevisionMetadata, error)
 	VerifyCommitSignature(string) (string, error)
+	ArchiveRemoteAndExtract(string, []string) error
 }
 
 type EventHandlers struct {
@@ -654,4 +655,10 @@ func (m *nativeGitClient) runCmdOutput(cmd *exec.Cmd) (string, error) {
 	cmd.Env = proxy.UpsertEnv(cmd, m.proxy)
 
 	return executil.Run(cmd)
+}
+
+// ArchiveRemoteAndExtract archives specified paths from git remote and extract locally as a fast checkout
+func (m *nativeGitClient) ArchiveRemoteAndExtract(revision string, repoPaths []string) error {
+	cmd := fmt.Sprintf("git archive --remote=origin %s %s | tar -xf -", revision, strings.Join(repoPaths, " "))
+	return m.runCredentialedCmd("bash", "-c", cmd)
 }
