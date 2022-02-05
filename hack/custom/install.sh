@@ -1,8 +1,9 @@
 #!/bin/bash
 set -eux -o pipefail
 
+# TODO(yujunz): some deps are no longer required e.g. python3-pip, jq, yq, procps
 apt-get update && \
-  apt-get install -y curl awscli gnupg jq procps&& \
+  apt-get install -y curl awscli gnupg python3-pip jq procps && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
