@@ -350,6 +350,15 @@ func ValidatePermissions(ctx context.Context, spec *argoappv1.ApplicationSpec, p
 		})
 	}
 
+	// ValidateDestination will resolve the destination's server address from its name for us, if possible
+	if err := ValidateDestination(ctx, &spec.Destination, db); err != nil {
+		conditions = append(conditions, argoappv1.ApplicationCondition{
+			Type:    argoappv1.ApplicationConditionInvalidSpecError,
+			Message: err.Error(),
+		})
+		return conditions, nil
+	}
+
 	if spec.Destination.Server != "" {
 		if !proj.IsDestinationPermitted(spec.Destination) {
 			conditions = append(conditions, argoappv1.ApplicationCondition{
@@ -396,34 +405,6 @@ func APIResourcesToStrings(resources []kube.APIResourceInfo, includeKinds bool) 
 	return res
 }
 
-func retrieveScopedRepositories(name string, db db.ArgoDB, ctx context.Context) []*argoappv1.Repository {
-	var repositories []*argoappv1.Repository
-	allRepos, err := db.ListRepositories(ctx)
-	if err != nil {
-		return repositories
-	}
-	for _, repo := range allRepos {
-		if repo.Project == name {
-			repositories = append(repositories, repo)
-		}
-	}
-	return repositories
-}
-
-func retrieveScopedClusters(name string, db db.ArgoDB, ctx context.Context) []*argoappv1.Cluster {
-	var clusters []*argoappv1.Cluster
-	allClusters, err := db.ListClusters(ctx)
-	if err != nil {
-		return clusters
-	}
-	for i, cluster := range allClusters.Items {
-		if cluster.Project == name {
-			clusters = append(clusters, &allClusters.Items[i])
-		}
-	}
-	return clusters
-}
-
 // GetAppProjectWithScopedResources returns a project from an application with scoped resources
 func GetAppProjectWithScopedResources(name string, projLister applicationsv1.AppProjectLister, ns string, settingsManager *settings.SettingsManager, db db.ArgoDB, ctx context.Context) (*argoappv1.AppProject, argoappv1.Repositories, []*argoappv1.Cluster, error) {
 	projOrig, err := projLister.AppProjects(ns).Get(name)
@@ -437,7 +418,15 @@ func GetAppProjectWithScopedResources(name string, projLister applicationsv1.App
 		return nil, nil, nil, err
 	}
 
-	return project, retrieveScopedRepositories(name, db, ctx), retrieveScopedClusters(name, db, ctx), nil
+	clusters, err := db.GetProjectClusters(ctx, project.Name)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	repos, err := db.GetProjectRepositories(ctx, name)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return project, repos, clusters, nil
 
 }
 
@@ -448,11 +437,17 @@ func GetAppProjectByName(name string, projLister applicationsv1.AppProjectLister
 		return nil, err
 	}
 	project := projOrig.DeepCopy()
-	repos := retrieveScopedRepositories(name, db, ctx)
+	repos, err := db.GetProjectRepositories(ctx, name)
+	if err != nil {
+		return nil, err
+	}
 	for _, repo := range repos {
 		project.Spec.SourceRepos = append(project.Spec.SourceRepos, repo.Repo)
 	}
-	clusters := retrieveScopedClusters(name, db, ctx)
+	clusters, err := db.GetProjectClusters(ctx, name)
+	if err != nil {
+		return nil, err
+	}
 	for _, cluster := range clusters {
 		if len(cluster.Namespaces) == 0 {
 			project.Spec.Destinations = append(project.Spec.Destinations, argoappv1.ApplicationDestination{Server: cluster.Server, Namespace: "*"})
@@ -621,15 +616,9 @@ func GetPermittedRepos(proj *argoappv1.AppProject, repos []*argoappv1.Repository
 }
 
 func getDestinationServer(ctx context.Context, db db.ArgoDB, clusterName string) (string, error) {
-	clusterList, err := db.ListClusters(ctx)
+	servers, err := db.GetClusterServersByName(ctx, clusterName)
 	if err != nil {
 		return "", err
-	}
-	var servers []string
-	for _, c := range clusterList.Items {
-		if c.Name == clusterName {
-			servers = append(servers, c.Server)
-		}
 	}
 	if len(servers) > 1 {
 		return "", fmt.Errorf("there are %d clusters with the same name: %v", len(servers), servers)
