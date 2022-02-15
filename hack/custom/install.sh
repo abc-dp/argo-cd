@@ -20,8 +20,8 @@ HELMFILE_VERSION=v0.139.7
 ${CURL_WITH_ARGS} -o ${BIN}/helmfile https://github.com/roboll/helmfile/releases/download/${HELMFILE_VERSION}/helmfile_linux_amd64
 chmod +x ${BIN}/helmfile
 
-CUE_VERSION=v0.4.0
-${CURL_WITH_ARGS} https://github.com/cuelang/cue/releases/download/${CUE_VERSION}/cue_${CUE_VERSION}_linux_amd64.tar.gz | ${TAR_WITH_ARGS} cue
+CUE_VERSION=v0.4.2
+${CURL_WITH_ARGS} https://github.com/cue-lang/cue/releases/download/${CUE_VERSION}/cue_${CUE_VERSION}_linux_amd64.tar.gz | ${TAR_WITH_ARGS} cue
 
 YQ_VERSION=2.12.0
 pip3 install yq==${YQ_VERSION}
