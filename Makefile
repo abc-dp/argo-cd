@@ -421,7 +421,7 @@ start-e2e: test-tools-image
 
 # Starts e2e server locally (or within a container)
 .PHONY: start-e2e-local
-start-e2e-local:
+start-e2e-local: mod-vendor-local dep-ui-local
 	kubectl create ns argocd-e2e || true
 	kubectl config set-context --current --namespace=argocd-e2e
 	kustomize build test/manifests/base | kubectl apply -f -
@@ -539,7 +539,6 @@ install-tools-local: install-test-tools-local install-codegen-tools-local instal
 .PHONY: install-test-tools-local
 install-test-tools-local:
 	./hack/install.sh kustomize-linux
-	./hack/install.sh ksonnet-linux
 	./hack/install.sh helm2-linux
 	./hack/install.sh helm-linux
 
