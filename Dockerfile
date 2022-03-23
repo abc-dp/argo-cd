@@ -91,7 +91,7 @@ RUN /opt/custom/user-init.sh
 ####################################################################################################
 # Argo CD UI stage
 ####################################################################################################
-FROM docker.io/library/node:12.18.4 as argocd-ui
+FROM --platform=$BUILDPLATFORM docker.io/library/node:12.18.4 as argocd-ui
 
 WORKDIR /src
 ADD ["ui/package.json", "ui/yarn.lock", "./"]
@@ -107,7 +107,7 @@ RUN HOST_ARCH='amd64' NODE_ENV='production' NODE_ONLINE_ENV='online' NODE_OPTION
 ####################################################################################################
 # Argo CD Build stage which performs the actual build of Argo CD binaries
 ####################################################################################################
-FROM docker.io/library/golang:1.17.6 as argocd-build
+FROM --platform=$BUILDPLATFORM  docker.io/library/golang:1.17.6 as argocd-build
 
 WORKDIR /go/src/github.com/argoproj/argo-cd
 
@@ -119,7 +119,8 @@ RUN go mod download
 # Perform the build
 COPY . .
 COPY --from=argocd-ui /src/dist/app /go/src/github.com/argoproj/argo-cd/ui/dist/app
-RUN make argocd-all
+ARG TARGETOS TARGETARCH
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH make argocd-all
 
 ####################################################################################################
 # Final image
