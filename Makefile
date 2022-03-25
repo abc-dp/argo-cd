@@ -289,7 +289,7 @@ image: build-ui
 	docker build -t $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) -f dist/Dockerfile.dev dist
 else
 image:
-	docker build -t $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) .
+	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) .
 endif
 	@if [ "$(DOCKER_PUSH)" = "true" ] ; then \
 		docker tag $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) $(IMAGE_PREFIX)argocd:latest \
