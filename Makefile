@@ -25,7 +25,7 @@ DOCKER_WORKDIR?=/go/src/github.com/argoproj/argo-cd
 
 ARGOCD_PROCFILE?=Procfile
 
-# Strict mode has been disabled in latest versions of mkdocs-material. 
+# Strict mode has been disabled in latest versions of mkdocs-material.
 # Thus pointing to the older image of mkdocs-material matching the version used by argo-cd.
 MKDOCS_DOCKER_IMAGE?=squidfunk/mkdocs-material:4.1.1
 MKDOCS_RUN_ARGS?=
@@ -117,7 +117,7 @@ define run-in-test-client
 		bash -c "$(1)"
 endef
 
-# 
+#
 define exec-in-test-server
 	docker exec -it -u $(shell id -u):$(shell id -g) -e ARGOCD_E2E_RECORD=$(ARGOCD_E2E_RECORD) -e ARGOCD_E2E_K3S=$(ARGOCD_E2E_K3S) argocd-test-server $(1)
 endef
@@ -299,7 +299,10 @@ else
 image:
 	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) .
 endif
-	@if [ "$(DOCKER_PUSH)" = "true" ] ; then docker push $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) ; fi
+	@if [ "$(DOCKER_PUSH)" = "true" ] ; then \
+		docker tag $(IMAGE_PREFIX)argocd:$(IMAGE_TAG) $(IMAGE_PREFIX)argocd:latest \
+		&& docker push --all-tags $(IMAGE_PREFIX)argocd ; \
+	fi
 
 .PHONY: armimage
 armimage:
