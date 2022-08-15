@@ -620,6 +620,13 @@ func (m *appStateManager) CompareAppState(app *v1alpha1.Application, project *ap
 	})
 	ts.AddCheckpoint("health_ms")
 	compRes.timings = ts.Timings()
+
+	for k, v := range ts.Timings() {
+		logCtx = logCtx.WithField(k, v.Milliseconds())
+	}
+	logCtx = logCtx.WithField("time_ms", time.Since(ts.StartTime).Milliseconds())
+	logCtx.Info("CompareAppState stats")
+
 	return &compRes
 }
 
